@@ -1,12 +1,35 @@
-import { login, signup, getUser } from "../controllers/authController";
-import express from "express";
-import { userLoginSchema, userSignupSchema } from "../schemas/authSchema";
-import { zodPostMiddleware } from "../middlewares/zodMiddleware";
-import { authMiddleware } from "../middlewares/authMiddleware";
-const router = express.Router();
+import { Router } from "express";
+import {
+  register,
+  login,
+  getMe,
+  updateProfile,
+  changePassword,
+  adminGetUsers,
+} from "../controllers/authController";
+import { validate } from "../middleware/validate";
+import { authenticate, adminOnly } from "../middleware/auth";
+import {
+  registerSchema,
+  loginSchema,
+  updateProfileSchema,
+  changePasswordSchema,
+  adminCreateUserSchema,
+} from "../schemas/auth.schema";
 
-router.post("/signup", zodPostMiddleware(userSignupSchema), signup);
-router.post("/login", zodPostMiddleware(userLoginSchema), login);
-router.get('/', authMiddleware as any, getUser as express.RequestHandler);
+const router = Router();
+
+// Public routes
+router.post("/register", validate(registerSchema), register);
+router.post("/login", validate(loginSchema), login);
+
+// Protected routes (any authenticated user)
+router.get("/me", authenticate, getMe);
+router.put("/me", authenticate, validate(updateProfileSchema), updateProfile);
+router.put("/change-password", authenticate, validate(changePasswordSchema), changePassword);
+
+// Admin-only routes
+// router.post("/admin/create-user", authenticate, adminOnly, validate(adminCreateUserSchema), adminCreateUser);
+router.get("/admin/users", authenticate, adminOnly, adminGetUsers);
 
 export default router;
