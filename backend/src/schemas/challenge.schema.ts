@@ -34,6 +34,9 @@ export const updateChallengeSchema = z.object({
     .optional(),
 });
 
+
+
+
 // Type exports
 export type CreateChallengeInput = z.infer<typeof createChallengeSchema>;
 export type UpdateChallengeInput = z.infer<typeof updateChallengeSchema>;
